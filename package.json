@@ -1,5 +1,5 @@
 {
-  "name": "hd-keyring",
+  "name": "@tallyho/hd-keyring",
   "author": "Matt Luongo <mhluongo@gmail.com>",
   "version": "0.1.1",
   "license": "GPL-3.0",
