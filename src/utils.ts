@@ -2,7 +2,7 @@ import { validateMnemonic } from "bip39"
 import { pbkdf2Sync } from "pbkdf2"
 
 export function normalizeMnemonic(mnemonic: string): string {
-  return mnemonic.trim().toLowerCase()
+  return mnemonic.trim().toLowerCase().replace(/\r/, " ").replace(/ +/, " ")
 }
 
 export function validateAndFormatMnemonic(
@@ -17,11 +17,14 @@ export function validateAndFormatMnemonic(
   return null
 }
 
-export function normalizeHexAddress(address: string): string {
-  const lower = address.toLowerCase()
-  const noPrefix = lower.replace(/^0x/, "")
+export function normalizeHexAddress(address: string | Buffer): string {
+  const addressString =
+    typeof address === "object" && !("toLowerCase" in address)
+      ? address.toString("hex")
+      : address
+  const noPrefix = addressString.replace(/^0x/, "")
   const even = noPrefix.length % 2 === 0 ? noPrefix : `0${noPrefix}`
-  return `0x${even}`
+  return `0x${Buffer.from(even, "hex").toString("hex")}`
 }
 
 /*
