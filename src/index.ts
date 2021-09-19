@@ -1,13 +1,23 @@
-import { default as HDWallet, hdkey as EthereumHDKey } from "ethereumjs-wallet"
+import HDWallet, { hdkey as EthereumHDKey } from "ethereumjs-wallet"
 import { generateMnemonic, mnemonicToSeedSync } from "bip39"
 import SimpleKeyring from "eth-simple-keyring"
 
-import { idFromMnemonic, normalizeHexAddress, normalizeMnemonic, validateAndFormatMnemonic } from "./utils"
+import {
+  idFromMnemonic,
+  normalizeHexAddress,
+  normalizeMnemonic,
+  validateAndFormatMnemonic,
+} from "./utils"
 
-export function generateTimeBasedIDFromMnemonic(mnemonic: string, time: number) {
+export function generateTimeBasedIDFromMnemonic(
+  mnemonic: string,
+  time: number,
+): string {
   // use a poor man's salt to provide some precomputation / rainbow table
   // resistance while maintaining determinism
-  const salt = (new Date(Math.round(time / 2 / 60 / 1000) * 2 * 60 * 1000)).getTime().toString()
+  const salt = new Date(Math.round(time / 2 / 60 / 1000) * 2 * 60 * 1000)
+    .getTime()
+    .toString()
 
   const normalized = normalizeMnemonic(mnemonic)
 
@@ -37,10 +47,15 @@ export type SerializedHDKeyring = {
 
 export class HDKeyring extends SimpleKeyring {
   readonly type: string
+
   readonly path: string
+
   readonly id: string
+
   readonly hdKey: EthereumHDKey
+
   readonly hdRoot: EthereumHDKey
+
   readonly hdWallets: HDWallet[]
 
   #mnemonic: string
@@ -52,14 +67,16 @@ export class HDKeyring extends SimpleKeyring {
 
     const hdOptions: Required<Options> = {
       ...defaultOptions,
-      ...options
+      ...options,
     }
 
     if (options.keyringType !== "bip44") {
       throw new Error("HDKeyring only supports BIP-32/44 style HD wallets.")
     }
 
-    const mnemonic = validateAndFormatMnemonic(hdOptions.mnemonic || generateMnemonic(hdOptions.strength))
+    const mnemonic = validateAndFormatMnemonic(
+      hdOptions.mnemonic || generateMnemonic(hdOptions.strength),
+    )
 
     if (!mnemonic) {
       throw new Error("Invalid mnemonic.")
@@ -92,13 +109,17 @@ export class HDKeyring extends SimpleKeyring {
     return this.serializeSync()
   }
 
-  deserialize(_: unknown) {
-    throw new Error("HDKeyrings are immutable, and don't support deserialization into an existing instance. Consider HDKeyring.deserialize(..)")
+  /* eslint-disable class-methods-use-this */
+  async deserialize(_: unknown): Promise<void> {
+    throw new Error(
+      "HDKeyrings are immutable, and don't support deserialization into an existing instance. Consider HDKeyring.deserialize(..)",
+    )
   }
+  /* eslint-enable class-methods-use-this */
 
   static deserialize(obj: SerializedHDKeyring): HDKeyring {
     if (obj.version !== 1) {
-      throw new Error(`Unknown serialization version ${ obj.version }`)
+      throw new Error(`Unknown serialization version ${obj.version}`)
     }
     return new HDKeyring({
       mnemonic: obj.mnemonic,
@@ -107,10 +128,10 @@ export class HDKeyring extends SimpleKeyring {
     })
   }
 
-  addAccountsSync(numNewAccounts: number = 1) {
+  addAccountsSync(numNewAccounts = 1): string[] {
     const numAddresses = this.getAccountsSync().length
 
-    for(let i = 0; i < numNewAccounts; i++) {
+    for (let i = 0; i < numNewAccounts; i += 1) {
       this.addAccountAtIndex(i + numAddresses)
     }
 
@@ -118,7 +139,7 @@ export class HDKeyring extends SimpleKeyring {
     return addresses.slice(numAddresses)
   }
 
-  async addAccounts(numNewAccounts: number = 1) {
+  async addAccounts(numNewAccounts = 1): Promise<string[]> {
     return this.addAccountsSync(numNewAccounts)
   }
 
@@ -128,7 +149,9 @@ export class HDKeyring extends SimpleKeyring {
   }
 
   getAccountsSync(): string[] {
-    return this.hdWallets.map((w) => normalizeHexAddress(w.getAddress().toString("hex")))
+    return this.hdWallets.map((w) =>
+      normalizeHexAddress(w.getAddress().toString("hex")),
+    )
   }
 
   async getAccounts(): Promise<string[]> {

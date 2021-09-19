@@ -16,7 +16,8 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint",
+    "lint": "eslint . --ext ts",
+    "lint:fix": "eslint . --fix --ext ts",
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why"
@@ -30,7 +31,8 @@
   "prettier": {
     "printWidth": 80,
     "semi": false,
-    "singleQuote": false
+    "singleQuote": false,
+    "trailingComma": "all"
   },
   "module": "dist/hd-keyring.esm.js",
   "size-limit": [
@@ -45,6 +47,9 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^5.0.3",
+    "@tallyho/eslint-config": "^0.1.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
     "husky": "^7.0.2",
     "size-limit": "^5.0.3",
     "tsdx": "^0.14.1",
