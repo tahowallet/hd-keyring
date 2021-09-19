@@ -27,7 +27,6 @@ export function generateTimeBasedIDFromMnemonic(
 export type Options = {
   strength?: number
   path?: string
-  keyringType?: string
   mnemonic?: string | null
   id?: string | null
 }
@@ -35,7 +34,6 @@ export type Options = {
 const defaultOptions = {
   path: "m/44'/60'/0'/0",
   strength: 256,
-  keyringType: "bip44",
   mnemonic: null,
   id: null,
 }
@@ -49,7 +47,7 @@ export type SerializedHDKeyring = {
 }
 
 export class HDKeyring extends SimpleKeyring {
-  readonly type: string
+  static readonly type: string = "bip44"
 
   readonly path: string
 
@@ -73,10 +71,6 @@ export class HDKeyring extends SimpleKeyring {
       ...options,
     }
 
-    if (options.keyringType !== "bip44") {
-      throw new Error("HDKeyring only supports BIP-32/44 style HD wallets.")
-    }
-
     const mnemonic = validateAndFormatMnemonic(
       hdOptions.mnemonic || generateMnemonic(hdOptions.strength),
     )
@@ -87,7 +81,6 @@ export class HDKeyring extends SimpleKeyring {
 
     this.#mnemonic = mnemonic
 
-    this.type = hdOptions.keyringType
     this.path = hdOptions.path
 
     const seed = mnemonicToSeedSync(mnemonic)
@@ -125,11 +118,15 @@ export class HDKeyring extends SimpleKeyring {
     if (obj.version !== 1) {
       throw new Error(`Unknown serialization version ${obj.version}`)
     }
+
+    if (obj.keyringType !== HDKeyring.type) {
+      throw new Error("HDKeyring only supports BIP-32/44 style HD wallets.")
+    }
+
     return new HDKeyring({
       id: obj.id,
       mnemonic: obj.mnemonic,
       path: obj.path,
-      keyringType: obj.keyringType,
     })
   }
 
