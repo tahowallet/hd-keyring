@@ -29,6 +29,7 @@ export type Options = {
   path?: string
   keyringType?: string
   mnemonic?: string | null
+  id?: string | null
 }
 
 const defaultOptions = {
@@ -36,10 +37,12 @@ const defaultOptions = {
   strength: 256,
   keyringType: "bip44",
   mnemonic: null,
+  id: null,
 }
 
 export type SerializedHDKeyring = {
   version: number
+  id: string
   mnemonic: string
   path: string
   keyringType: string
@@ -93,12 +96,13 @@ export class HDKeyring extends SimpleKeyring {
     this.hdWallets = []
 
     // derive a reference to the mnemonic suitable for identifying the wallet
-    this.id = generateTimeBasedIDFromMnemonic(mnemonic, now)
+    this.id = hdOptions.id || generateTimeBasedIDFromMnemonic(mnemonic, now)
   }
 
   serializeSync(): SerializedHDKeyring {
     return {
       version: 1,
+      id: this.id,
       mnemonic: this.#mnemonic,
       keyringType: this.type,
       path: this.path,
@@ -122,6 +126,7 @@ export class HDKeyring extends SimpleKeyring {
       throw new Error(`Unknown serialization version ${obj.version}`)
     }
     return new HDKeyring({
+      id: obj.id,
       mnemonic: obj.mnemonic,
       path: obj.path,
       keyringType: obj.keyringType,
