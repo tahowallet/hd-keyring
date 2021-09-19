@@ -1,0 +1,12 @@
+describe("HDKeyring", () => {
+  it("can be constructed without a mnemonic", () => {})
+  it("can be constructed with a mnemonic", () => {})
+  it("cannot be constructed with an invalid mnemonic", () => {})
+  it("serializes its mnemonic", () => {})
+  it("deserializes after serializing", () => {})
+  it("fails to deserialize different versions", () => {})
+  it("generates the same accounts from the same mnemonic", () => {})
+  it("signs transactions recoverably", () => {})
+  it("signs messages recoverably", () => {})
+  it("signs typed data recoverably", () => {})
+})
