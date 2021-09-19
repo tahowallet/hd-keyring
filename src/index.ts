@@ -46,7 +46,7 @@ export type SerializedHDKeyring = {
   keyringType: string
 }
 
-export class HDKeyring extends SimpleKeyring {
+export default class HDKeyring extends SimpleKeyring {
   static readonly type: string = "bip44"
 
   readonly path: string
@@ -61,7 +61,7 @@ export class HDKeyring extends SimpleKeyring {
 
   #mnemonic: string
 
-  constructor(options: Options) {
+  constructor(options: Options = {}) {
     super()
 
     const now = Date.now()
