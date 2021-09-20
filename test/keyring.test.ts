@@ -20,14 +20,14 @@ describe("HDKeyring", () => {
   it("can be constructed without a mnemonic", () => {
     const keyring = new HDKeyring()
     expect(keyring.id).toBeTruthy()
-    expect(keyring.id.length).toBeGreaterThan(10)
+    expect(keyring.id.length).toBeGreaterThan(9)
   })
   it("can be constructed with a mnemonic", () => {
     const keyring = new HDKeyring({
       mnemonic: validMnemonics[0],
     })
     expect(keyring.id).toBeTruthy()
-    expect(keyring.id.length).toBeGreaterThan(10)
+    expect(keyring.id.length).toBeGreaterThan(9)
   })
   it("cannot be constructed with an invalid mnemonic", () => {
     underTwelveWorkMnemonics.forEach((m) =>
@@ -68,13 +68,31 @@ describe("HDKeyring", () => {
       expect(keyring1.id).toBe(keyring2.id)
     })
   })
+  it("generates distinct accounts", async () => {
+    const allAccounts: string[] = []
+    twelveOrMoreWordMnemonics.forEach(async (m) => {
+      const keyring = new HDKeyring({ mnemonic: m })
+
+      await keyring.addAccounts(10)
+
+      const accounts = await keyring.getAccounts()
+      expect(accounts.length).toEqual(10)
+      expect(new Set(accounts).size).toEqual(10)
+
+      allAccounts.concat(accounts)
+    })
+    expect(new Set(allAccounts).size).toEqual(allAccounts.length)
+  })
   it("generates the same accounts from the same mnemonic", async () => {
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring1 = new HDKeyring({ mnemonic: m })
       const keyring2 = new HDKeyring({ mnemonic: m })
 
-      await keyring1.addAccounts()
-      await keyring2.addAccounts()
+      keyring1.addAccountsSync()
+      keyring2.addAccountsSync()
+
+      expect((await keyring1.getAccounts()).length).toBeGreaterThan(0)
+      expect((await keyring2.getAccounts()).length).toBeGreaterThan(0)
 
       expect(await keyring1.getAccounts()).toStrictEqual(
         await keyring2.getAccounts(),

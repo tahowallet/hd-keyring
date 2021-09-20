@@ -2,7 +2,6 @@ import {
   normalizeMnemonic,
   normalizeHexAddress,
   validateAndFormatMnemonic,
-  idFromMnemonic,
 } from "../src/utils"
 
 const validMnemonics = [
@@ -22,7 +21,6 @@ describe("utils", () => {
     expect(normalizeMnemonic(m1)).toEqual("abe fish one")
   })
   it("normalizes addresses", () => {
-    // expect(sum(1, 1)).toEqual(2)
     const testCases = [
       ["123abEd", "0x0123abed"],
       ["0x3ABCDEF123456789", "0x3abcdef123456789"],
@@ -38,13 +36,5 @@ describe("utils", () => {
     twelveOrMoreWordMnemonics.forEach((valid) =>
       expect(validateAndFormatMnemonic(valid)).toEqual(valid),
     )
-  })
-
-  it("generates mnemonic IDs deterministically", () => {
-    twelveOrMoreWordMnemonics.forEach((valid) => {
-      const id1 = idFromMnemonic(valid, "salt")
-      const id2 = idFromMnemonic(valid, "salt")
-      expect(id1).toEqual(id2)
-    })
   })
 })

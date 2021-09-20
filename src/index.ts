@@ -1,45 +1,21 @@
-import HDWallet, { hdkey as EthereumHDKey } from "ethereumjs-wallet"
-import {
-  Transaction,
-  AccessListEIP2930Transaction,
-  FeeMarketEIP1559Transaction,
-} from "@ethereumjs/tx"
-import { generateMnemonic, mnemonicToSeedSync } from "bip39"
+import { HDNode } from "@ethersproject/hdnode"
+import { Wallet } from "@ethersproject/wallet"
 
-import {
-  idFromMnemonic,
-  normalizeHexAddress,
-  normalizeMnemonic,
-  validateAndFormatMnemonic,
-} from "./utils"
+import { generateMnemonic } from "bip39"
 
-export function generateTimeBasedIDFromMnemonic(
-  mnemonic: string,
-  time: number,
-): string {
-  // use a poor man's salt to provide some precomputation / rainbow table
-  // resistance while maintaining determinism
-  const salt = new Date(Math.round(time / 2 / 60 / 1000) * 2 * 60 * 1000)
-    .getTime()
-    .toString()
-
-  const normalized = normalizeMnemonic(mnemonic)
-
-  return idFromMnemonic(normalized, salt)
-}
+import { normalizeHexAddress, validateAndFormatMnemonic } from "./utils"
 
 export type Options = {
   strength?: number
   path?: string
   mnemonic?: string | null
-  id?: string | null
 }
 
 const defaultOptions = {
+  // default path is BIP-44, where depth 5 is the address index
   path: "m/44'/60'/0'/0",
   strength: 256,
   mnemonic: null,
-  id: null,
 }
 
 export type SerializedHDKeyring = {
@@ -51,23 +27,23 @@ export type SerializedHDKeyring = {
 }
 
 export default class HDKeyring {
-  static readonly type: string = "bip44"
+  static readonly type: string = "bip32"
 
   readonly path: string
 
   readonly id: string
 
-  readonly hdKey: EthereumHDKey
+  #hdNode: HDNode
 
-  readonly hdRoot: EthereumHDKey
+  #addressIndex: number
 
-  readonly hdWallets: HDWallet[]
+  #wallets: Wallet[]
+
+  #addressToWallet: { [address: string]: Wallet }
 
   #mnemonic: string
 
   constructor(options: Options = {}) {
-    const now = Date.now()
-
     const hdOptions: Required<Options> = {
       ...defaultOptions,
       ...options,
@@ -84,14 +60,13 @@ export default class HDKeyring {
     this.#mnemonic = mnemonic
 
     this.path = hdOptions.path
-
-    const seed = mnemonicToSeedSync(mnemonic)
-    this.hdKey = EthereumHDKey.fromMasterSeed(seed)
-    this.hdRoot = this.hdKey.derivePath(this.path)
-    this.hdWallets = []
-
-    // derive a reference to the mnemonic suitable for identifying the wallet
-    this.id = hdOptions.id || generateTimeBasedIDFromMnemonic(mnemonic, now)
+    this.#hdNode = HDNode.fromMnemonic(mnemonic, undefined, "en").derivePath(
+      this.path,
+    )
+    this.id = this.#hdNode.fingerprint
+    this.#addressIndex = 0
+    this.#wallets = []
+    this.#addressToWallet = {}
   }
 
   serializeSync(): SerializedHDKeyring {
@@ -118,27 +93,19 @@ export default class HDKeyring {
     }
 
     return new HDKeyring({
-      id: obj.id,
       mnemonic: obj.mnemonic,
       path: obj.path,
     })
   }
 
-  signTransactionSync(
-    address: string,
-    tx:
-    | Transaction
-    | AccessListEIP2930Transaction
-    | FeeMarketEIP1559Transaction,
-  ): any {}
-
   addAccountsSync(numNewAccounts = 1): string[] {
-    const numAddresses = this.getAccountsSync().length
+    const numAddresses = this.#addressIndex
 
     for (let i = 0; i < numNewAccounts; i += 1) {
-      this.addAccountAtIndex(i + numAddresses)
+      this.#deriveChildWallet(i + numAddresses)
     }
 
+    this.#addressIndex += numNewAccounts
     const addresses = this.getAccountsSync()
     return addresses.slice(numAddresses)
   }
@@ -147,15 +114,19 @@ export default class HDKeyring {
     return this.addAccountsSync(numNewAccounts)
   }
 
-  private addAccountAtIndex(index: number) {
-    const hdWallet = this.hdRoot.deriveChild(index).getWallet()
-    this.hdWallets.push(hdWallet)
+  #deriveChildWallet(index: number): void {
+    const newPath = `${index}`
+
+    const childNode = this.#hdNode.derivePath(newPath)
+    const wallet = new Wallet(childNode)
+
+    this.#wallets.push(wallet)
+    const address = normalizeHexAddress(wallet.address)
+    this.#addressToWallet[address] = wallet
   }
 
   getAccountsSync(): string[] {
-    return this.hdWallets.map((w) =>
-      normalizeHexAddress(w.getAddress().toString("hex")),
-    )
+    return this.#wallets.map((w) => normalizeHexAddress(w.address))
   }
 
   async getAccounts(): Promise<string[]> {
