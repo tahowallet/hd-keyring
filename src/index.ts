@@ -1,3 +1,4 @@
+import { TransactionRequest } from "@ethersproject/abstract-provider"
 import { HDNode } from "@ethersproject/hdnode"
 import { Wallet } from "@ethersproject/wallet"
 
@@ -96,6 +97,25 @@ export default class HDKeyring {
       mnemonic: obj.mnemonic,
       path: obj.path,
     })
+  }
+
+  async signTransaction(
+    address: string,
+    transaction: TransactionRequest,
+  ): Promise<string> {
+    const normAddress = normalizeHexAddress(address)
+    if (!this.#addressToWallet[normAddress]) {
+      throw new Error("Address not found!")
+    }
+    return this.#addressToWallet[normAddress].signTransaction(transaction)
+  }
+
+  async signMessage(address: string, message: string): Promise<string> {
+    const normAddress = normalizeHexAddress(address)
+    if (!this.#addressToWallet[normAddress]) {
+      throw new Error("Address not found!")
+    }
+    return this.#addressToWallet[normAddress].signMessage(message)
   }
 
   addAccountsSync(numNewAccounts = 1): string[] {

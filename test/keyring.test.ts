@@ -1,3 +1,4 @@
+import { verifyMessage } from "@ethersproject/wallet"
 import HDKeyring from "../src"
 
 const validMnemonics = [
@@ -99,7 +100,18 @@ describe("HDKeyring", () => {
       )
     })
   })
+  it("signs messages recoverably", async () => {
+    twelveOrMoreWordMnemonics.forEach(async (m) => {
+      const keyring = new HDKeyring({ mnemonic: m })
+
+      const accounts = await keyring.addAccounts(2)
+      accounts.forEach(async (address) => {
+        const message = "recoverThisMessage"
+        const sig = await keyring.signMessage(address, message)
+        expect(await verifyMessage(message, sig).toLowerCase()).toEqual(address)
+      })
+    })
+  })
   it.todo("signs transactions recoverably")
-  it.todo("signs messages recoverably")
   it.todo("signs typed data recoverably")
 })
