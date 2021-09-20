@@ -1,6 +1,10 @@
 import HDWallet, { hdkey as EthereumHDKey } from "ethereumjs-wallet"
+import {
+  Transaction,
+  AccessListEIP2930Transaction,
+  FeeMarketEIP1559Transaction,
+} from "@ethereumjs/tx"
 import { generateMnemonic, mnemonicToSeedSync } from "bip39"
-import SimpleKeyring from "eth-simple-keyring"
 
 import {
   idFromMnemonic,
@@ -46,7 +50,7 @@ export type SerializedHDKeyring = {
   keyringType: string
 }
 
-export default class HDKeyring extends SimpleKeyring {
+export default class HDKeyring {
   static readonly type: string = "bip44"
 
   readonly path: string
@@ -62,8 +66,6 @@ export default class HDKeyring extends SimpleKeyring {
   #mnemonic: string
 
   constructor(options: Options = {}) {
-    super()
-
     const now = Date.now()
 
     const hdOptions: Required<Options> = {
@@ -97,7 +99,7 @@ export default class HDKeyring extends SimpleKeyring {
       version: 1,
       id: this.id,
       mnemonic: this.#mnemonic,
-      keyringType: this.type,
+      keyringType: HDKeyring.type,
       path: this.path,
     }
   }
@@ -105,14 +107,6 @@ export default class HDKeyring extends SimpleKeyring {
   async serialize(): Promise<SerializedHDKeyring> {
     return this.serializeSync()
   }
-
-  /* eslint-disable class-methods-use-this */
-  async deserialize(_: unknown): Promise<void> {
-    throw new Error(
-      "HDKeyrings are immutable, and don't support deserialization into an existing instance. Consider HDKeyring.deserialize(..)",
-    )
-  }
-  /* eslint-enable class-methods-use-this */
 
   static deserialize(obj: SerializedHDKeyring): HDKeyring {
     if (obj.version !== 1) {
@@ -129,6 +123,14 @@ export default class HDKeyring extends SimpleKeyring {
       path: obj.path,
     })
   }
+
+  signTransactionSync(
+    address: string,
+    tx:
+    | Transaction
+    | AccessListEIP2930Transaction
+    | FeeMarketEIP1559Transaction,
+  ): any {}
 
   addAccountsSync(numNewAccounts = 1): string[] {
     const numAddresses = this.getAccountsSync().length
