@@ -122,7 +122,7 @@ export default class HDKeyring {
     const numAddresses = this.#addressIndex
 
     for (let i = 0; i < numNewAccounts; i += 1) {
-      this.#deriveChildWallet(i + numAddresses)
+      this.deriveChildWallet(i + numAddresses)
     }
 
     this.#addressIndex += numNewAccounts
@@ -134,7 +134,7 @@ export default class HDKeyring {
     return this.addAccountsSync(numNewAccounts)
   }
 
-  #deriveChildWallet(index: number): void {
+  private deriveChildWallet(index: number): void {
     const newPath = `${index}`
 
     const childNode = this.#hdNode.derivePath(newPath)
