@@ -6,6 +6,12 @@ import { generateMnemonic } from "bip39"
 
 import { normalizeHexAddress, validateAndFormatMnemonic } from "./utils"
 
+export {
+  normalizeHexAddress,
+  normalizeMnemonic,
+  validateAndFormatMnemonic,
+} from "./utils"
+
 export type Options = {
   strength?: number
   path?: string
