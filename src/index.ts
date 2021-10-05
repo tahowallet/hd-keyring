@@ -31,6 +31,7 @@ export type SerializedHDKeyring = {
   mnemonic: string
   path: string
   keyringType: string
+  addressIndex: number
 }
 
 export default class HDKeyring {
@@ -83,6 +84,7 @@ export default class HDKeyring {
       mnemonic: this.#mnemonic,
       keyringType: HDKeyring.type,
       path: this.path,
+      addressIndex: this.#addressIndex,
     }
   }
 
@@ -91,18 +93,23 @@ export default class HDKeyring {
   }
 
   static deserialize(obj: SerializedHDKeyring): HDKeyring {
-    if (obj.version !== 1) {
+    const { version, keyringType, mnemonic, path, addressIndex } = obj
+    if (version !== 1) {
       throw new Error(`Unknown serialization version ${obj.version}`)
     }
 
-    if (obj.keyringType !== HDKeyring.type) {
+    if (keyringType !== HDKeyring.type) {
       throw new Error("HDKeyring only supports BIP-32/44 style HD wallets.")
     }
 
-    return new HDKeyring({
-      mnemonic: obj.mnemonic,
-      path: obj.path,
+    const keyring = new HDKeyring({
+      mnemonic,
+      path,
     })
+
+    keyring.addAccountsSync(addressIndex)
+
+    return keyring
   }
 
   async signTransaction(
