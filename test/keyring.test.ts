@@ -104,22 +104,22 @@ describe("HDKeyring", () => {
       expect(keyring1.id).toBe(keyring2.id)
     })
   })
-  it("generates distinct accounts", async () => {
+  it("generates distinct addresses", async () => {
     const allAddresses: string[] = []
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring = new HDKeyring({ mnemonic: m })
 
       await keyring.addAddresses(10)
 
-      const accounts = await keyring.getAddresses()
-      expect(accounts.length).toEqual(10)
-      expect(new Set(accounts).size).toEqual(10)
+      const addresses = await keyring.getAddresses()
+      expect(addresses.length).toEqual(10)
+      expect(new Set(addresses).size).toEqual(10)
 
-      allAddresses.concat(accounts)
+      allAddresses.concat(addresses)
     })
     expect(new Set(allAddresses).size).toEqual(allAddresses.length)
   })
-  it("generates the same accounts from the same mnemonic", async () => {
+  it("generates the same addresses from the same mnemonic", async () => {
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring1 = new HDKeyring({ mnemonic: m })
       const keyring2 = new HDKeyring({ mnemonic: m })
@@ -147,8 +147,8 @@ describe("HDKeyring", () => {
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring = new HDKeyring({ mnemonic: m })
 
-      const accounts = await keyring.addAddresses(2)
-      accounts.forEach(async (address) => {
+      const addresses = await keyring.addAddresses(2)
+      addresses.forEach(async (address) => {
         const message = "recoverThisMessage"
         const sig = await keyring.signMessage(address, message)
         expect(await verifyMessage(message, sig).toLowerCase()).toEqual(address)
