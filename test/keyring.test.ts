@@ -105,41 +105,41 @@ describe("HDKeyring", () => {
     })
   })
   it("generates distinct accounts", async () => {
-    const allAccounts: string[] = []
+    const allAddresses: string[] = []
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring = new HDKeyring({ mnemonic: m })
 
-      await keyring.addAccounts(10)
+      await keyring.addAddresses(10)
 
-      const accounts = await keyring.getAccounts()
+      const accounts = await keyring.getAddresses()
       expect(accounts.length).toEqual(10)
       expect(new Set(accounts).size).toEqual(10)
 
-      allAccounts.concat(accounts)
+      allAddresses.concat(accounts)
     })
-    expect(new Set(allAccounts).size).toEqual(allAccounts.length)
+    expect(new Set(allAddresses).size).toEqual(allAddresses.length)
   })
   it("generates the same accounts from the same mnemonic", async () => {
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring1 = new HDKeyring({ mnemonic: m })
       const keyring2 = new HDKeyring({ mnemonic: m })
 
-      keyring1.addAccountsSync()
-      keyring2.addAccountsSync()
+      keyring1.addAddressesSync()
+      keyring2.addAddressesSync()
 
-      expect((await keyring1.getAccounts()).length).toBeGreaterThan(0)
-      expect((await keyring2.getAccounts()).length).toBeGreaterThan(0)
+      expect((await keyring1.getAddresses()).length).toBeGreaterThan(0)
+      expect((await keyring2.getAddresses()).length).toBeGreaterThan(0)
 
-      expect(await keyring1.getAccounts()).toStrictEqual(
-        await keyring2.getAccounts(),
+      expect(await keyring1.getAddresses()).toStrictEqual(
+        await keyring2.getAddresses(),
       )
     })
   })
   it("derives the same addresses as legacy wallets", async () => {
     validDerivations.forEach(async ({ mnemonic, addresses }) => {
       const keyring = new HDKeyring({ mnemonic })
-      await keyring.addAccountsSync(10)
-      const newAddresses = keyring.getAccountsSync()
+      await keyring.addAddressesSync(10)
+      const newAddresses = keyring.getAddressesSync()
       expect(newAddresses).toStrictEqual(addresses)
     })
   })
@@ -147,7 +147,7 @@ describe("HDKeyring", () => {
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring = new HDKeyring({ mnemonic: m })
 
-      const accounts = await keyring.addAccounts(2)
+      const accounts = await keyring.addAddresses(2)
       accounts.forEach(async (address) => {
         const message = "recoverThisMessage"
         const sig = await keyring.signMessage(address, message)

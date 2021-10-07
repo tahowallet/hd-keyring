@@ -107,7 +107,7 @@ export default class HDKeyring {
       path,
     })
 
-    keyring.addAccountsSync(addressIndex)
+    keyring.addAddressesSync(addressIndex)
 
     return keyring
   }
@@ -131,7 +131,7 @@ export default class HDKeyring {
     return this.#addressToWallet[normAddress].signMessage(message)
   }
 
-  addAccountsSync(numNewAccounts = 1): string[] {
+  addAddressesSync(numNewAccounts = 1): string[] {
     const numAddresses = this.#addressIndex
 
     for (let i = 0; i < numNewAccounts; i += 1) {
@@ -139,12 +139,12 @@ export default class HDKeyring {
     }
 
     this.#addressIndex += numNewAccounts
-    const addresses = this.getAccountsSync()
+    const addresses = this.getAddressesSync()
     return addresses.slice(numAddresses)
   }
 
-  async addAccounts(numNewAccounts = 1): Promise<string[]> {
-    return this.addAccountsSync(numNewAccounts)
+  async addAddresses(numNewAccounts = 1): Promise<string[]> {
+    return this.addAddressesSync(numNewAccounts)
   }
 
   private deriveChildWallet(index: number): void {
@@ -158,11 +158,11 @@ export default class HDKeyring {
     this.#addressToWallet[address] = wallet
   }
 
-  getAccountsSync(): string[] {
+  getAddressesSync(): string[] {
     return this.#wallets.map((w) => normalizeHexAddress(w.address))
   }
 
-  async getAccounts(): Promise<string[]> {
-    return this.getAccountsSync()
+  async getAddresses(): Promise<string[]> {
+    return this.getAddressesSync()
   }
 }
