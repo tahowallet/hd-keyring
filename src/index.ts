@@ -34,7 +34,23 @@ export type SerializedHDKeyring = {
   addressIndex: number
 }
 
-export default class HDKeyring {
+export interface Keyring<T> {
+  serialize(): Promise<T>
+  getAddresses(): Promise<string[]>
+  addAddresses(n?: number): Promise<string[]>
+  signTransaction(
+    address: string,
+    transaction: TransactionRequest,
+  ): Promise<string>
+  signMessage(address: string, message: string): Promise<string>
+}
+
+export interface KeyringClass<T> {
+  new (): Keyring<T>
+  deserialize(serializedKeyring: T): Promise<Keyring<T>>
+}
+
+export default class HDKeyring implements Keyring<SerializedHDKeyring> {
   static readonly type: string = "bip32"
 
   readonly path: string
