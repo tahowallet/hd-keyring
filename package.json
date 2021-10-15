@@ -46,6 +46,8 @@
     }
   ],
   "devDependencies": {
+    "@ethersproject/keccak256": "^5.4.0",
+    "@ethersproject/transactions": "^5.4.0",
     "@size-limit/preset-small-lib": "^5.0.3",
     "@tallyho/eslint-config": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^4.29.3",

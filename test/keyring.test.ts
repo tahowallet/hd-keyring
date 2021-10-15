@@ -1,4 +1,12 @@
 import { verifyMessage } from "@ethersproject/wallet"
+import {
+  parse,
+  recoverAddress,
+  serialize,
+  UnsignedTransaction,
+} from "@ethersproject/transactions"
+import { keccak256 } from "@ethersproject/keccak256"
+import { TransactionRequest } from "@ethersproject/abstract-provider"
 import HDKeyring from "../src"
 
 const validMnemonics = [
@@ -155,6 +163,30 @@ describe("HDKeyring", () => {
       })
     })
   })
-  it.todo("signs transactions recoverably")
+  it("signs transactions recoverably", async () => {
+    twelveOrMoreWordMnemonics.forEach(async (m) => {
+      const keyring = new HDKeyring({ mnemonic: m })
+
+      const addresses = await keyring.addAddresses(2)
+      addresses.forEach(async (address) => {
+        const tx: TransactionRequest = {
+          to: address,
+          value: 300000,
+          gasLimit: 300000,
+          gasPrice: 300000,
+          nonce: 300000,
+        }
+        const signedTx = await keyring.signTransaction(address, tx)
+        const parsed = parse(signedTx)
+        const sig = {
+          r: parsed.r as string,
+          s: parsed.s as string,
+          v: parsed.v as number,
+        }
+        const digest = keccak256(serialize(<UnsignedTransaction>tx))
+        expect(recoverAddress(digest, sig).toLowerCase()).toEqual(address)
+      })
+    })
+  })
   it.todo("signs typed data recoverably")
 })
