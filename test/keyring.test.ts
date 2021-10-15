@@ -1,4 +1,4 @@
-import { verifyMessage } from "@ethersproject/wallet"
+import { verifyMessage, verifyTypedData } from "@ethersproject/wallet"
 import {
   parse,
   recoverAddress,
@@ -188,5 +188,44 @@ describe("HDKeyring", () => {
       })
     })
   })
-  it.todo("signs typed data recoverably")
+  it("signs typed data recoverably", async () => {
+    twelveOrMoreWordMnemonics.forEach(async (m) => {
+      const keyring = new HDKeyring({ mnemonic: m })
+
+      const addresses = await keyring.addAddresses(2)
+      addresses.forEach(async (address) => {
+        const domain = {
+          name: "Ether Mail",
+          version: "1",
+          chainId: 1,
+          verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
+        }
+
+        const types = {
+          Person: [{ name: "name", type: "string" }],
+          Mail: [
+            { name: "from", type: "Person" },
+            { name: "to", type: "Person" },
+            { name: "contents", type: "string" },
+          ],
+        }
+
+        const value = {
+          contents: "Hello, Bob!",
+          from: {
+            name: "Alice",
+          },
+          to: {
+            name: "Bob",
+          },
+        }
+
+        const sig = await keyring.signTypedData(address, domain, types, value)
+
+        expect(
+          verifyTypedData(domain, types, value, sig).toLowerCase(),
+        ).toEqual(address)
+      })
+    })
+  })
 })

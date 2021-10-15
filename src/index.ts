@@ -1,4 +1,5 @@
 import { TransactionRequest } from "@ethersproject/abstract-provider"
+import { TypedDataDomain, TypedDataField } from "@ethersproject/abstract-signer"
 import { HDNode } from "@ethersproject/hdnode"
 import { Wallet } from "@ethersproject/wallet"
 
@@ -41,6 +42,12 @@ export interface Keyring<T> {
   signTransaction(
     address: string,
     transaction: TransactionRequest,
+  ): Promise<string>
+  signTypedData(
+    address: string,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, any>,
   ): Promise<string>
   signMessage(address: string, message: string): Promise<string>
 }
@@ -137,6 +144,24 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
       throw new Error("Address not found!")
     }
     return this.#addressToWallet[normAddress].signTransaction(transaction)
+  }
+
+  async signTypedData(
+    address: string,
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, any>,
+  ): Promise<string> {
+    const normAddress = normalizeHexAddress(address)
+    if (!this.#addressToWallet[normAddress]) {
+      throw new Error("Address not found!")
+    }
+    // eslint-disable-next-line no-underscore-dangle
+    return this.#addressToWallet[normAddress]._signTypedData(
+      domain,
+      types,
+      value,
+    )
   }
 
   async signMessage(address: string, message: string): Promise<string> {
