@@ -32,11 +32,11 @@
   "size-limit": [
     {
       "path": "dist/hd-keyring.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "250 KB"
     },
     {
       "path": "dist/hd-keyring.esm.js",
-      "limit": "10 KB"
+      "limit": "250 KB"
     }
   ],
   "devDependencies": {
