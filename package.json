@@ -28,12 +28,6 @@
       "pre-commit": "dts lint"
     }
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": false,
-    "singleQuote": false,
-    "trailingComma": "all"
-  },
   "module": "dist/hd-keyring.esm.js",
   "size-limit": [
     {
@@ -49,7 +43,7 @@
     "@ethersproject/keccak256": "^5.4.0",
     "@ethersproject/transactions": "^5.4.0",
     "@size-limit/preset-small-lib": "^5.0.3",
-    "@tallyho/eslint-config": "^0.1.0",
+    "@thesis-co/eslint-config": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "husky": "^7.0.2",

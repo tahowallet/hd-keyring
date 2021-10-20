@@ -12,7 +12,7 @@ const validMnemonics = [
   "mad such absent minor vapor edge tornado wrestle convince shy battle region adapt order finish foot follow monitor",
 ]
 const twelveOrMoreWordMnemonics = validMnemonics.filter(
-  (m) => m.split(" ").length >= 12,
+  (m) => m.split(" ").length >= 12
 )
 
 describe("utils", () => {
@@ -28,13 +28,13 @@ describe("utils", () => {
     ]
 
     testCases.forEach(([input, expectedOutput]) =>
-      expect(normalizeHexAddress(input)).toEqual(expectedOutput),
+      expect(normalizeHexAddress(input)).toEqual(expectedOutput)
     )
   })
 
   it("validates and formats mnemonics", () => {
     twelveOrMoreWordMnemonics.forEach((valid) =>
-      expect(validateAndFormatMnemonic(valid)).toEqual(valid),
+      expect(validateAndFormatMnemonic(valid)).toEqual(valid)
     )
   })
 })
