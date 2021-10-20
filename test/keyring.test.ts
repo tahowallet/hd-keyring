@@ -53,11 +53,11 @@ const validDerivations = [
 ]
 
 const twelveOrMoreWordMnemonics = validMnemonics.filter(
-  (m) => m.split(" ").length >= 12,
+  (m) => m.split(" ").length >= 12
 )
 
 const underTwelveWorkMnemonics = validMnemonics.filter(
-  (m) => m.split(" ").length < 12,
+  (m) => m.split(" ").length < 12
 )
 
 describe("HDKeyring", () => {
@@ -75,7 +75,7 @@ describe("HDKeyring", () => {
   })
   it("cannot be constructed with an invalid mnemonic", () => {
     underTwelveWorkMnemonics.forEach((m) =>
-      expect(() => new HDKeyring({ mnemonic: m })).toThrowError(),
+      expect(() => new HDKeyring({ mnemonic: m })).toThrowError()
     )
   })
   it("serializes its mnemonic", () => {
@@ -139,7 +139,7 @@ describe("HDKeyring", () => {
       expect((await keyring2.getAddresses()).length).toBeGreaterThan(0)
 
       expect(await keyring1.getAddresses()).toStrictEqual(
-        await keyring2.getAddresses(),
+        await keyring2.getAddresses()
       )
     })
   })
@@ -223,7 +223,7 @@ describe("HDKeyring", () => {
         const sig = await keyring.signTypedData(address, domain, types, value)
 
         expect(
-          verifyTypedData(domain, types, value, sig).toLowerCase(),
+          verifyTypedData(domain, types, value, sig).toLowerCase()
         ).toEqual(address)
       })
     })

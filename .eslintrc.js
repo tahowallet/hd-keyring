@@ -1,12 +1,8 @@
 module.exports = {
   root: true,
-  extends: [
-      "@tallyho/eslint-config",
-  ],
+  extends: ["@thesis-co/eslint-config"],
   parserOptions: {
     project: "./.tsconfig-eslint.json",
   },
-  rules: {
-    "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
-  }
-}
+  ignorePatterns: ["dist/*"],
+};

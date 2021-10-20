@@ -6,7 +6,7 @@ export function normalizeMnemonic(mnemonic: string): string {
 
 export function validateAndFormatMnemonic(
   mnemonic: string,
-  wordlist?: string[],
+  wordlist?: string[]
 ): string | null {
   const normalized = normalizeMnemonic(mnemonic)
 

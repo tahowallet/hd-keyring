@@ -41,13 +41,13 @@ export interface Keyring<T> {
   addAddresses(n?: number): Promise<string[]>
   signTransaction(
     address: string,
-    transaction: TransactionRequest,
+    transaction: TransactionRequest
   ): Promise<string>
   signTypedData(
     address: string,
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    value: Record<string, any>,
+    value: Record<string, unknown>
   ): Promise<string>
   signMessage(address: string, message: string): Promise<string>
 }
@@ -81,7 +81,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     }
 
     const mnemonic = validateAndFormatMnemonic(
-      hdOptions.mnemonic || generateMnemonic(hdOptions.strength),
+      hdOptions.mnemonic || generateMnemonic(hdOptions.strength)
     )
 
     if (!mnemonic) {
@@ -92,7 +92,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
     this.path = hdOptions.path
     this.#hdNode = HDNode.fromMnemonic(mnemonic, undefined, "en").derivePath(
-      this.path,
+      this.path
     )
     this.id = this.#hdNode.fingerprint
     this.#addressIndex = 0
@@ -137,7 +137,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
   async signTransaction(
     address: string,
-    transaction: TransactionRequest,
+    transaction: TransactionRequest
   ): Promise<string> {
     const normAddress = normalizeHexAddress(address)
     if (!this.#addressToWallet[normAddress]) {
@@ -150,7 +150,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     address: string,
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    value: Record<string, any>,
+    value: Record<string, unknown>
   ): Promise<string> {
     const normAddress = normalizeHexAddress(address)
     if (!this.#addressToWallet[normAddress]) {
@@ -160,7 +160,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     return this.#addressToWallet[normAddress]._signTypedData(
       domain,
       types,
-      value,
+      value
     )
   }
 
@@ -176,7 +176,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     const numAddresses = this.#addressIndex
 
     for (let i = 0; i < numNewAccounts; i += 1) {
-      this.deriveChildWallet(i + numAddresses)
+      this.#deriveChildWallet(i + numAddresses)
     }
 
     this.#addressIndex += numNewAccounts
@@ -188,7 +188,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     return this.addAddressesSync(numNewAccounts)
   }
 
-  private deriveChildWallet(index: number): void {
+  #deriveChildWallet(index: number): void {
     const newPath = `${index}`
 
     const childNode = this.#hdNode.derivePath(newPath)

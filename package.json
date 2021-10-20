@@ -1,7 +1,7 @@
 {
   "name": "@tallyho/hd-keyring",
   "author": "Matt Luongo <mhluongo@gmail.com>",
-  "version": "0.3.1",
+  "version": "0.3.2-pre",
   "license": "GPL-3.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -13,48 +13,42 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test",
+    "start": "dts watch",
+    "build": "dts build",
+    "test": "dts test",
     "lint": "eslint . --ext ts",
     "lint:fix": "eslint . --fix --ext ts",
-    "prepare": "tsdx build",
+    "prepare": "dts build",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
   "peerDependencies": {},
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "dts lint"
     }
-  },
-  "prettier": {
-    "printWidth": 80,
-    "semi": false,
-    "singleQuote": false,
-    "trailingComma": "all"
   },
   "module": "dist/hd-keyring.esm.js",
   "size-limit": [
     {
       "path": "dist/hd-keyring.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "250 KB"
     },
     {
       "path": "dist/hd-keyring.esm.js",
-      "limit": "10 KB"
+      "limit": "250 KB"
     }
   ],
   "devDependencies": {
     "@ethersproject/keccak256": "^5.4.0",
     "@ethersproject/transactions": "^5.4.0",
     "@size-limit/preset-small-lib": "^5.0.3",
-    "@tallyho/eslint-config": "^0.1.0",
+    "@thesis-co/eslint-config": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "husky": "^7.0.2",
+    "dts-cli": "^0.19.2",
     "size-limit": "^5.0.3",
-    "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
     "typescript": "^4.4.3"
   },
