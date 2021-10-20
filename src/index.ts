@@ -176,7 +176,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     const numAddresses = this.#addressIndex
 
     for (let i = 0; i < numNewAccounts; i += 1) {
-      this.deriveChildWallet(i + numAddresses)
+      this.#deriveChildWallet(i + numAddresses)
     }
 
     this.#addressIndex += numNewAccounts
@@ -188,7 +188,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     return this.addAddressesSync(numNewAccounts)
   }
 
-  private deriveChildWallet(index: number): void {
+  #deriveChildWallet(index: number): void {
     const newPath = `${index}`
 
     const childNode = this.#hdNode.derivePath(newPath)
