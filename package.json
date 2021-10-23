@@ -1,7 +1,7 @@
 {
   "name": "@tallyho/hd-keyring",
   "author": "Matt Luongo <mhluongo@gmail.com>",
-  "version": "0.3.2",
+  "version": "0.3.3-pre",
   "license": "GPL-3.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
