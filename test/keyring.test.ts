@@ -127,6 +127,20 @@ describe("HDKeyring", () => {
     })
     expect(new Set(allAddresses).size).toEqual(allAddresses.length)
   })
+  it("generates and initializes the same first address from the same mnemonic", async () => {
+    await Promise.all(
+      validDerivations.map(async ({ mnemonic, addresses }) => {
+        const keyring = new HDKeyring({ mnemonic })
+
+        expect((await keyring.getAddresses()).length).toEqual(0)
+
+        keyring.addAddressesSync()
+
+        expect((await keyring.getAddresses()).length).toEqual(1)
+        expect(await keyring.getAddresses()).toStrictEqual([addresses[0]])
+      })
+    )
+  })
   it("generates the same addresses from the same mnemonic", async () => {
     twelveOrMoreWordMnemonics.forEach(async (m) => {
       const keyring1 = new HDKeyring({ mnemonic: m })
