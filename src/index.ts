@@ -181,7 +181,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
     this.#addressIndex += numNewAccounts
     const addresses = this.getAddressesSync()
-    return addresses.slice(numAddresses)
+    return addresses.slice(-numNewAccounts)
   }
 
   async addAddresses(numNewAccounts = 1): Promise<string[]> {
