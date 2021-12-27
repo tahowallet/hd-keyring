@@ -200,6 +200,18 @@ describe("HDKeyring", () => {
       })
     )
   })
+  it("returns the correct addresses when generated 1 by 1", async () => {
+    await Promise.all(
+      validDerivations.slice(-1).map(async ({ mnemonic, addresses }) => {
+        const keyring = new HDKeyring({ mnemonic })
+        for (let i = 0; i < addresses.length; i += 1) {
+          const newAddresses = keyring.addAddressesSync()
+          expect(newAddresses.length).toEqual(1)
+          expect(newAddresses[0]).toStrictEqual(addresses[i])
+        }
+      })
+    )
+  })
   it("signs messages recoverably", async () => {
     await Promise.all(
       twelveOrMoreWordMnemonics.map(async (m) => {
