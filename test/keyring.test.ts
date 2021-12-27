@@ -78,34 +78,40 @@ describe("HDKeyring", () => {
       expect(() => new HDKeyring({ mnemonic: m })).toThrowError()
     )
   })
-  it("serializes its mnemonic", () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
-      const serialized = await keyring.serialize()
-      expect(serialized.mnemonic).toBe(m)
-    })
+  it("serializes its mnemonic", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+        const serialized = await keyring.serialize()
+        expect(serialized.mnemonic).toBe(m)
+      })
+    )
   })
-  it("deserializes after serializing", () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
-      const id1 = keyring.id
+  it("deserializes after serializing", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+        const id1 = keyring.id
 
-      const serialized = await keyring.serialize()
-      const deserialized = HDKeyring.deserialize(serialized)
+        const serialized = await keyring.serialize()
+        const deserialized = HDKeyring.deserialize(serialized)
 
-      expect(id1).toBe(deserialized.id)
-    })
+        expect(id1).toBe(deserialized.id)
+      })
+    )
   })
-  it("fails to deserialize different versions", () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
-      const serialized = await keyring.serialize()
-      serialized.version = 2
-      expect(() => HDKeyring.deserialize(serialized)).toThrowError()
-    })
+  it("fails to deserialize different versions", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+        const serialized = await keyring.serialize()
+        serialized.version = 2
+        expect(() => HDKeyring.deserialize(serialized)).toThrowError()
+      })
+    )
   })
   it("generates the same IDs from the same mnemonic", async () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
+    twelveOrMoreWordMnemonics.forEach((m) => {
       const keyring1 = new HDKeyring({ mnemonic: m })
       const keyring2 = new HDKeyring({ mnemonic: m })
 
@@ -114,17 +120,19 @@ describe("HDKeyring", () => {
   })
   it("generates distinct addresses", async () => {
     const allAddresses: string[] = []
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
 
-      await keyring.addAddresses(10)
+        await keyring.addAddresses(10)
 
-      const addresses = await keyring.getAddresses()
-      expect(addresses.length).toEqual(10)
-      expect(new Set(addresses).size).toEqual(10)
+        const addresses = await keyring.getAddresses()
+        expect(addresses.length).toEqual(10)
+        expect(new Set(addresses).size).toEqual(10)
 
-      allAddresses.concat(addresses)
-    })
+        allAddresses.concat(addresses)
+      })
+    )
     expect(new Set(allAddresses).size).toEqual(allAddresses.length)
   })
   it("generates and initializes the same first address from the same mnemonic", async () => {
@@ -142,104 +150,116 @@ describe("HDKeyring", () => {
     )
   })
   it("generates the same addresses from the same mnemonic", async () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring1 = new HDKeyring({ mnemonic: m })
-      const keyring2 = new HDKeyring({ mnemonic: m })
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring1 = new HDKeyring({ mnemonic: m })
+        const keyring2 = new HDKeyring({ mnemonic: m })
 
-      keyring1.addAddressesSync()
-      keyring2.addAddressesSync()
+        keyring1.addAddressesSync()
+        keyring2.addAddressesSync()
 
-      expect((await keyring1.getAddresses()).length).toBeGreaterThan(0)
-      expect((await keyring2.getAddresses()).length).toBeGreaterThan(0)
+        expect((await keyring1.getAddresses()).length).toBeGreaterThan(0)
+        expect((await keyring2.getAddresses()).length).toBeGreaterThan(0)
 
-      expect(await keyring1.getAddresses()).toStrictEqual(
-        await keyring2.getAddresses()
-      )
-    })
+        expect(await keyring1.getAddresses()).toStrictEqual(
+          await keyring2.getAddresses()
+        )
+      })
+    )
   })
   it("derives the same addresses as legacy wallets", async () => {
-    validDerivations.forEach(async ({ mnemonic, addresses }) => {
-      const keyring = new HDKeyring({ mnemonic })
-      await keyring.addAddressesSync(10)
-      const newAddresses = keyring.getAddressesSync()
-      expect(newAddresses).toStrictEqual(addresses)
-    })
+    await Promise.all(
+      validDerivations.map(async ({ mnemonic, addresses }) => {
+        const keyring = new HDKeyring({ mnemonic })
+        await keyring.addAddressesSync(10)
+        const newAddresses = keyring.getAddressesSync()
+        expect(newAddresses).toStrictEqual(addresses)
+      })
+    )
   })
   it("signs messages recoverably", async () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
 
-      const addresses = await keyring.addAddresses(2)
-      addresses.forEach(async (address) => {
-        const message = "recoverThisMessage"
-        const sig = await keyring.signMessage(address, message)
-        expect(await verifyMessage(message, sig).toLowerCase()).toEqual(address)
+        const addresses = await keyring.addAddresses(2)
+        addresses.forEach(async (address) => {
+          const message = "recoverThisMessage"
+          const sig = await keyring.signMessage(address, message)
+          expect(await verifyMessage(message, sig).toLowerCase()).toEqual(
+            address
+          )
+        })
       })
-    })
+    )
   })
   it("signs transactions recoverably", async () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
 
-      const addresses = await keyring.addAddresses(2)
-      addresses.forEach(async (address) => {
-        const tx: TransactionRequest = {
-          to: address,
-          value: 300000,
-          gasLimit: 300000,
-          gasPrice: 300000,
-          nonce: 300000,
-        }
-        const signedTx = await keyring.signTransaction(address, tx)
-        const parsed = parse(signedTx)
-        const sig = {
-          r: parsed.r as string,
-          s: parsed.s as string,
-          v: parsed.v as number,
-        }
-        const digest = keccak256(serialize(<UnsignedTransaction>tx))
-        expect(recoverAddress(digest, sig).toLowerCase()).toEqual(address)
+        const addresses = await keyring.addAddresses(2)
+        addresses.forEach(async (address) => {
+          const tx: TransactionRequest = {
+            to: address,
+            value: 300000,
+            gasLimit: 300000,
+            gasPrice: 300000,
+            nonce: 300000,
+          }
+          const signedTx = await keyring.signTransaction(address, tx)
+          const parsed = parse(signedTx)
+          const sig = {
+            r: parsed.r as string,
+            s: parsed.s as string,
+            v: parsed.v as number,
+          }
+          const digest = keccak256(serialize(<UnsignedTransaction>tx))
+          expect(recoverAddress(digest, sig).toLowerCase()).toEqual(address)
+        })
       })
-    })
+    )
   })
   it("signs typed data recoverably", async () => {
-    twelveOrMoreWordMnemonics.forEach(async (m) => {
-      const keyring = new HDKeyring({ mnemonic: m })
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
 
-      const addresses = await keyring.addAddresses(2)
-      addresses.forEach(async (address) => {
-        const domain = {
-          name: "Ether Mail",
-          version: "1",
-          chainId: 1,
-          verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
-        }
+        const addresses = await keyring.addAddresses(2)
+        addresses.forEach(async (address) => {
+          const domain = {
+            name: "Ether Mail",
+            version: "1",
+            chainId: 1,
+            verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
+          }
 
-        const types = {
-          Person: [{ name: "name", type: "string" }],
-          Mail: [
-            { name: "from", type: "Person" },
-            { name: "to", type: "Person" },
-            { name: "contents", type: "string" },
-          ],
-        }
+          const types = {
+            Person: [{ name: "name", type: "string" }],
+            Mail: [
+              { name: "from", type: "Person" },
+              { name: "to", type: "Person" },
+              { name: "contents", type: "string" },
+            ],
+          }
 
-        const value = {
-          contents: "Hello, Bob!",
-          from: {
-            name: "Alice",
-          },
-          to: {
-            name: "Bob",
-          },
-        }
+          const value = {
+            contents: "Hello, Bob!",
+            from: {
+              name: "Alice",
+            },
+            to: {
+              name: "Bob",
+            },
+          }
 
-        const sig = await keyring.signTypedData(address, domain, types, value)
+          const sig = await keyring.signTypedData(address, domain, types, value)
 
-        expect(
-          verifyTypedData(domain, types, value, sig).toLowerCase()
-        ).toEqual(address)
+          expect(
+            verifyTypedData(domain, types, value, sig).toLowerCase()
+          ).toEqual(address)
+        })
       })
-    })
+    )
   })
 })
