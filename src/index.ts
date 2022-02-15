@@ -17,6 +17,7 @@ export type Options = {
   strength?: number
   path?: string
   mnemonic?: string | null
+  source?: "import" | "newSeed"
 }
 
 const defaultOptions = {
@@ -24,6 +25,7 @@ const defaultOptions = {
   path: "m/44'/60'/0'/0",
   strength: 256,
   mnemonic: null,
+  source: "import" as const,
 }
 
 export type SerializedHDKeyring = {
@@ -64,6 +66,8 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
   readonly id: string
 
+  readonly source: "import" | "newSeed"
+
   #hdNode: HDNode
 
   #addressIndex: number
@@ -91,6 +95,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     this.#mnemonic = mnemonic
 
     this.path = hdOptions.path
+    this.source = hdOptions.source
     this.#hdNode = HDNode.fromMnemonic(mnemonic, undefined, "en").derivePath(
       this.path
     )
