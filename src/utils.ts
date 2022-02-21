@@ -1,4 +1,5 @@
 import { validateMnemonic } from "bip39"
+import { keccak256 } from "@ethersproject/keccak256"
 
 export function normalizeMnemonic(mnemonic: string): string {
   return mnemonic.trim().toLowerCase().replace(/\r/, " ").replace(/ +/, " ")
@@ -24,4 +25,23 @@ export function normalizeHexAddress(address: string | Buffer): string {
   const noPrefix = addressString.replace(/^0x/, "")
   const even = noPrefix.length % 2 === 0 ? noPrefix : `0${noPrefix}`
   return `0x${Buffer.from(even, "hex").toString("hex")}`
+}
+
+export function toChecksumAddress(address: string): string {
+  const addressWithOutPrefix = address.toLowerCase().replace("0x", "")
+  const hash = keccak256(Buffer.from(addressWithOutPrefix, "ascii")).replace(
+    "0x",
+    ""
+  )
+
+  const checkSum = Array.from(addressWithOutPrefix)
+    .map((_, index): string => {
+      if (parseInt(hash[index], 16) >= 8) {
+        return addressWithOutPrefix[index].toUpperCase()
+      }
+      return addressWithOutPrefix[index]
+    })
+    .join("")
+
+  return `0x${checkSum}`
 }

@@ -10,6 +10,7 @@ import { normalizeHexAddress, validateAndFormatMnemonic } from "./utils"
 export {
   normalizeHexAddress,
   normalizeMnemonic,
+  toChecksumAddress,
   validateAndFormatMnemonic,
 } from "./utils"
 
