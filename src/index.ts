@@ -18,6 +18,7 @@ export type Options = {
   strength?: number
   path?: string
   mnemonic?: string | null
+  passphrase?: string | null
 }
 
 const defaultOptions = {
@@ -25,6 +26,7 @@ const defaultOptions = {
   path: "m/44'/60'/0'/0",
   strength: 256,
   mnemonic: null,
+  passphrase: "",
 }
 
 export type SerializedHDKeyring = {
@@ -34,6 +36,7 @@ export type SerializedHDKeyring = {
   path: string
   keyringType: string
   addressIndex: number
+  passphrase: string
 }
 
 export interface Keyring<T> {
@@ -75,6 +78,8 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
   #mnemonic: string
 
+  #passphrase: string
+
   constructor(options: Options = {}) {
     const hdOptions: Required<Options> = {
       ...defaultOptions,
@@ -91,8 +96,12 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
     this.#mnemonic = mnemonic
 
+    const passphrase = hdOptions.passphrase || ""
+
+    this.#passphrase = passphrase
+
     this.path = hdOptions.path
-    this.#hdNode = HDNode.fromMnemonic(mnemonic, undefined, "en").derivePath(
+    this.#hdNode = HDNode.fromMnemonic(mnemonic, passphrase, "en").derivePath(
       this.path
     )
     this.id = this.#hdNode.fingerprint
@@ -109,6 +118,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
       keyringType: HDKeyring.type,
       path: this.path,
       addressIndex: this.#addressIndex,
+      passphrase: this.#passphrase,
     }
   }
 
@@ -117,7 +127,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
   }
 
   static deserialize(obj: SerializedHDKeyring): HDKeyring {
-    const { version, keyringType, mnemonic, path, addressIndex } = obj
+    const { version, keyringType, mnemonic, path, addressIndex, passphrase } = obj
     if (version !== 1) {
       throw new Error(`Unknown serialization version ${obj.version}`)
     }
@@ -129,6 +139,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     const keyring = new HDKeyring({
       mnemonic,
       path,
+      passphrase,
     })
 
     keyring.addAddressesSync(addressIndex)
@@ -197,7 +208,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     const newPath = `${index}`
 
     const childNode = this.#hdNode.derivePath(newPath)
-    const wallet = new Wallet(childNode)
+    const wallet = new Wallet(childNode.privateKey)
 
     this.#wallets.push(wallet)
     const address = normalizeHexAddress(wallet.address)
