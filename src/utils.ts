@@ -28,7 +28,7 @@ export function normalizeHexAddress(address: string | Buffer): string {
 }
 
 export function toChecksumAddress(address: string): string {
-  const addressWithOutPrefix = address.toLowerCase().replace("0x", "")
+  const addressWithOutPrefix = normalizeHexAddress(address).replace("0x", "")
   const hash = keccak256(Buffer.from(addressWithOutPrefix, "ascii")).replace(
     "0x",
     ""
