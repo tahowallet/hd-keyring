@@ -96,7 +96,7 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
 
     this.#mnemonic = mnemonic
 
-    const passphrase = hdOptions.passphrase || ""
+    const passphrase = hdOptions.passphrase ?? ""
 
     this.#passphrase = passphrase
 

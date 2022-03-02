@@ -52,6 +52,11 @@ const validDerivations = [
   },
 ]
 
+const testPassphrases = [
+  "super_secret",
+  "1234"
+]
+
 const twelveOrMoreWordMnemonics = validMnemonics.filter(
   (m) => m.split(" ").length >= 12
 )
@@ -69,6 +74,14 @@ describe("HDKeyring", () => {
   it("can be constructed with a mnemonic", () => {
     const keyring = new HDKeyring({
       mnemonic: validMnemonics[0],
+    })
+    expect(keyring.id).toBeTruthy()
+    expect(keyring.id.length).toBeGreaterThan(9)
+  })
+  it("can be constructed with a mnemonic and passphrase", () => {
+    const keyring = new HDKeyring({
+      mnemonic: validMnemonics[0],
+      passphrase: testPassphrases[0],
     })
     expect(keyring.id).toBeTruthy()
     expect(keyring.id.length).toBeGreaterThan(9)
@@ -116,6 +129,17 @@ describe("HDKeyring", () => {
       const keyring2 = new HDKeyring({ mnemonic: m })
 
       expect(keyring1.id).toBe(keyring2.id)
+    })
+  })
+  it("generates a different ID from the same mnemonic with a passphrase", async () => {
+    twelveOrMoreWordMnemonics.forEach((m) => {
+      const keyring1 = new HDKeyring({ mnemonic: m })
+      const keyring2 = new HDKeyring({
+        mnemonic: m,
+        passphrase: testPassphrases[0],
+      })
+
+      expect(keyring1.id).not.toBe(keyring2.id)
     })
   })
   it("generates distinct addresses", async () => {
@@ -226,6 +250,36 @@ describe("HDKeyring", () => {
 
         expect(await keyring1.getAddresses()).toStrictEqual(
           await keyring2.getAddresses()
+        )
+      })
+    )
+  })
+  it("generates different addresses from the same mnemonic with different passphrases", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring1 = new HDKeyring({ mnemonic: m })
+        const keyring2 = new HDKeyring({
+          mnemonic: m,
+          passphrase: testPassphrases[0],
+        })
+        const keyring3 = new HDKeyring({
+          mnemonic: m,
+          passphrase: testPassphrases[1],
+        })
+
+        keyring1.addAddressesSync()
+        keyring2.addAddressesSync()
+        keyring3.addAddressesSync()
+
+        expect((await keyring1.getAddresses()).length).toBeGreaterThan(0)
+        expect((await keyring2.getAddresses()).length).toBeGreaterThan(0)
+        expect((await keyring3.getAddresses()).length).toBeGreaterThan(0)
+
+        expect(await keyring1.getAddresses()).not.toStrictEqual(
+          await keyring2.getAddresses()
+        )
+        expect(await keyring2.getAddresses()).not.toStrictEqual(
+          await keyring3.getAddresses()
         )
       })
     )
