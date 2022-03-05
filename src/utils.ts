@@ -27,12 +27,14 @@ export function normalizeHexAddress(address: string | Buffer): string {
   return `0x${Buffer.from(even, "hex").toString("hex")}`
 }
 
-export function toChecksumAddress(address: string): string {
-  const addressWithOutPrefix = normalizeHexAddress(address).replace("0x", "")
-  const hash = keccak256(Buffer.from(addressWithOutPrefix, "ascii")).replace(
-    "0x",
-    ""
-  )
+export function toChecksumAddress(address: string, chainId?: number): string {
+  const addressWithOutPrefix = normalizeHexAddress(address)
+    .replace("0x", "")
+    .toLowerCase()
+  const prefix = chainId != null ? `${chainId}0x` : ""
+  const hash = keccak256(
+    Buffer.from(`${prefix}${addressWithOutPrefix}`, "ascii")
+  ).replace("0x", "")
 
   const checkSum = Array.from(addressWithOutPrefix)
     .map((_, index): string => {
@@ -44,4 +46,11 @@ export function toChecksumAddress(address: string): string {
     .join("")
 
   return `0x${checkSum}`
+}
+
+export function isValidChecksumAddress(
+  address: string,
+  chainId?: number
+): boolean {
+  return toChecksumAddress(address, chainId) === address
 }
