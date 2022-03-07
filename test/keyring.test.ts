@@ -278,6 +278,9 @@ describe("HDKeyring", () => {
         expect(await keyring1.getAddresses()).not.toStrictEqual(
           await keyring2.getAddresses()
         )
+        expect(await keyring1.getAddresses()).not.toStrictEqual(
+          await keyring3.getAddresses()
+        )
         expect(await keyring2.getAddresses()).not.toStrictEqual(
           await keyring3.getAddresses()
         )
