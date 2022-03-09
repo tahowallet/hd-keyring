@@ -56,7 +56,7 @@
     "@ethersproject/abstract-provider": "^5.4.0",
     "@ethersproject/abstract-signer": "^5.4.0",
     "@ethersproject/hdnode": "^5.4.0",
-    "@ethersproject/wallet": "^5.4.0",
+    "@ethersproject/wallet": "5.4.0",
     "bip39": "^3.0.4"
   }
 }
