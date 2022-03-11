@@ -127,7 +127,8 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
   }
 
   static deserialize(obj: SerializedHDKeyring): HDKeyring {
-    const { version, keyringType, mnemonic, path, addressIndex, passphrase } = obj
+    const { version, keyringType, mnemonic, path, addressIndex, passphrase } =
+      obj
     if (version !== 1) {
       throw new Error(`Unknown serialization version ${obj.version}`)
     }

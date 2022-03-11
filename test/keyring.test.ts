@@ -52,10 +52,7 @@ const validDerivations = [
   },
 ]
 
-const testPassphrases = [
-  "super_secret",
-  "1234"
-]
+const testPassphrases = ["super_secret", "1234"]
 
 const twelveOrMoreWordMnemonics = validMnemonics.filter(
   (m) => m.split(" ").length >= 12
