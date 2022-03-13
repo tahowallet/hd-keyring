@@ -40,7 +40,6 @@
     }
   ],
   "devDependencies": {
-    "@ethersproject/keccak256": "^5.4.0",
     "@ethersproject/transactions": "^5.4.0",
     "@size-limit/preset-small-lib": "^5.0.3",
     "@thesis-co/eslint-config": "^0.1.0",
@@ -56,6 +55,7 @@
     "@ethersproject/abstract-provider": "^5.4.0",
     "@ethersproject/abstract-signer": "^5.4.0",
     "@ethersproject/hdnode": "^5.4.0",
+    "@ethersproject/keccak256": "^5.4.0",
     "@ethersproject/wallet": "5.4.0",
     "bip39": "^3.0.4"
   }
