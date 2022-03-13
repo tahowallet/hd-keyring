@@ -28,10 +28,11 @@ export function normalizeHexAddress(address: string | Buffer): string {
 }
 
 export function toChecksumAddress(address: string, chainId?: number): string {
+  const whitelistedChainIds = [30, 31]
   const addressWithOutPrefix = normalizeHexAddress(address)
     .replace("0x", "")
     .toLowerCase()
-  const prefix = chainId != null ? `${chainId}0x` : ""
+  const prefix = chainId && whitelistedChainIds.includes(chainId) ? `${chainId}0x` : ""
   const hash = keccak256(
     Buffer.from(`${prefix}${addressWithOutPrefix}`, "ascii")
   ).replace("0x", "")
