@@ -173,10 +173,11 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
   }
 
   addAddressesSync(numNewAccounts = 1): string[] {
-    if (numNewAccounts < 0 || numNewAccounts > 2 ** 31 - 1) {
+    const numAddresses = this.#addressIndex
+
+    if (numNewAccounts < 0 || numAddresses + numNewAccounts > 2 ** 31 - 1) {
       throw new Error("New account index out of range")
     }
-    const numAddresses = this.#addressIndex
 
     for (let i = 0; i < numNewAccounts; i += 1) {
       this.#deriveChildWallet(i + numAddresses)
