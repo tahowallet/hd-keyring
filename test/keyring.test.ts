@@ -135,6 +135,46 @@ describe("HDKeyring", () => {
     )
     expect(new Set(allAddresses).size).toEqual(allAddresses.length)
   })
+  it("fails to generate out-of-bounds addresses", async () => {
+    const addressBounds0 = await Promise.allSettled(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+
+        // Add negatives, should always fail.
+        await keyring.addAddresses(-Math.random() * 10 - 1)
+      })
+    )
+
+    const addressBoundsMax = await Promise.allSettled(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+
+        await keyring.addAddresses(2 ** 31)
+      })
+    )
+
+    const addressBoundsMaxSplit = await Promise.allSettled(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+
+        // Adding more than order-of-10 addresses can get so slow it kills test
+        // time, thus the small first and second splits.
+        const firstSplit = Math.floor(Math.random() * 10)
+        const secondSplit = Math.floor(Math.random() * 10)
+        const remaining = 2 ** 31 - firstSplit
+
+        await keyring.addAddresses(firstSplit)
+        await keyring.addAddresses(secondSplit)
+        await keyring.addAddresses(remaining)
+      })
+    )
+
+    expect(
+      [...addressBounds0, ...addressBoundsMax, ...addressBoundsMaxSplit]
+        .map(({ status }) => status)
+        .every((status) => status === "rejected")
+    ).toEqual(true)
+  })
   it("generates addresses without off-by-one errors", async () => {
     await Promise.all(
       twelveOrMoreWordMnemonics.slice(-1).map(async (m) => {
