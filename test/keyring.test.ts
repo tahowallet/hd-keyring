@@ -110,6 +110,25 @@ describe("HDKeyring", () => {
       })
     )
   })
+  it("deserializes with passphrase after serializing", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({
+          mnemonic: m,
+          passphrase: testPassphrases[0],
+        })
+        const id1 = keyring.id
+
+        const serialized = await keyring.serialize()
+        const deserialized = HDKeyring.deserialize(
+          serialized,
+          testPassphrases[0]
+        )
+
+        expect(id1).toBe(deserialized.id)
+      })
+    )
+  })
   it("fails to deserialize different versions", async () => {
     await Promise.all(
       twelveOrMoreWordMnemonics.map(async (m) => {
