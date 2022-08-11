@@ -1,5 +1,6 @@
 import { TransactionRequest } from "@ethersproject/abstract-provider"
 import { TypedDataDomain, TypedDataField } from "@ethersproject/abstract-signer"
+import { Bytes } from "@ethersproject/bytes"
 import { HDNode } from "@ethersproject/hdnode"
 import { Wallet } from "@ethersproject/wallet"
 
@@ -171,6 +172,22 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
   }
 
   async signMessage(address: string, message: string): Promise<string> {
+    const normAddress = normalizeHexAddress(address)
+    if (!this.#addressToWallet[normAddress]) {
+      throw new Error("Address not found!")
+    }
+    return this.#addressToWallet[normAddress].signMessage(message)
+  }
+
+  async signMessageBytes(address: string, message: Bytes): Promise<string> {
+    // Explicitly guard so non-TypeScript callers don't get an
+    // impossible-to-track-down bad signature by accidentally passing a string
+    // here.
+    if (typeof message === "string") {
+      throw new Error(
+        "signMessageBytes cannot be used to sign strings or hex strings; please convert to a byte array first."
+      )
+    }
     const normAddress = normalizeHexAddress(address)
     if (!this.#addressToWallet[normAddress]) {
       throw new Error("Address not found!")

@@ -1,4 +1,5 @@
 import { verifyMessage, verifyTypedData } from "@ethersproject/wallet"
+import { Bytes } from "@ethersproject/bytes"
 import {
   parse,
   recoverAddress,
@@ -7,6 +8,7 @@ import {
 } from "@ethersproject/transactions"
 import { keccak256 } from "@ethersproject/keccak256"
 import { TransactionRequest } from "@ethersproject/abstract-provider"
+import { toUtf8Bytes } from "@ethersproject/strings"
 import HDKeyring from "../src"
 
 const validMnemonics = [
@@ -334,9 +336,41 @@ describe("HDKeyring", () => {
         addresses.forEach(async (address) => {
           const message = "recoverThisMessage"
           const sig = await keyring.signMessage(address, message)
-          expect(await verifyMessage(message, sig).toLowerCase()).toEqual(
-            address
+          expect(verifyMessage(message, sig).toLowerCase()).toEqual(address)
+        })
+      })
+    )
+  })
+  it("signs message bytes recoverably", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+
+        const addresses = await keyring.addAddresses(2)
+        addresses.forEach(async (address) => {
+          const message = "recoverThisMessage"
+          const sig = await keyring.signMessageBytes(
+            address,
+            toUtf8Bytes(message)
           )
+          expect(verifyMessage(message, sig).toLowerCase()).toEqual(address)
+        })
+      })
+    )
+  })
+  it("does not sign message bytes when receiving a string", async () => {
+    await Promise.all(
+      twelveOrMoreWordMnemonics.map(async (m) => {
+        const keyring = new HDKeyring({ mnemonic: m })
+
+        const addresses = await keyring.addAddresses(2)
+        addresses.forEach(async (address) => {
+          const message = "recoverThisMessage"
+          expect(
+            await keyring
+              .signMessageBytes(address, message as unknown as Bytes)
+              .catch(() => "error")
+          ).toEqual("error")
         })
       })
     )
