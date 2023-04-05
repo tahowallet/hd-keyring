@@ -226,6 +226,11 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     this.#addressToWallet[address] = wallet
   }
 
+  exportPrivateKey(address: string): string | null {
+    const wallet = this.#addressToWallet[address]
+    return wallet ? wallet.privateKey : null
+  }
+
   getAddressesSync(): string[] {
     return this.#wallets.map((w) => normalizeHexAddress(w.address))
   }

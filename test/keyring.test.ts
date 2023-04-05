@@ -90,6 +90,21 @@ describe("HDKeyring", () => {
       expect(() => new HDKeyring({ mnemonic: m })).toThrowError()
     )
   })
+  it("exports private keys for derived addresses", async () => {
+    const keyring = new HDKeyring({
+      mnemonic: validMnemonics[0],
+    })
+
+    const [address1, address2] = await keyring.addAddresses(2)
+
+    expect(keyring.exportPrivateKey(address1)).toBe(
+      "0x6cf5a2031e021b257730ba62c7dff36829d4e5296a08b6115f7be166c03e1a46"
+    )
+    expect(keyring.exportPrivateKey(address2)).toBe(
+      "0x7047d92e716734c2b132a5b7a81588879ade8953ba55bc06a169b8acc3958806"
+    )
+    expect(keyring.exportPrivateKey("0xABC")).toBe(null)
+  })
   it("serializes its mnemonic", async () => {
     await Promise.all(
       twelveOrMoreWordMnemonics.map(async (m) => {
