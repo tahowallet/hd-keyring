@@ -54,6 +54,9 @@ const validDerivations = [
   },
 ]
 
+const exportConfirmation =
+  "I solemnly swear that I am treating this private key material with great care."
+
 const testPassphrases = ["super_secret", "1234"]
 
 const twelveOrMoreWordMnemonics = validMnemonics.filter(
@@ -89,6 +92,34 @@ describe("HDKeyring", () => {
     underTwelveWorkMnemonics.forEach((m) =>
       expect(() => new HDKeyring({ mnemonic: m })).toThrowError()
     )
+  })
+  it("prevents exporting private keys without proper confirmation", async () => {
+    const keyring = new HDKeyring({
+      mnemonic: validMnemonics[0],
+    })
+    const [address1] = await keyring.addAddresses()
+
+    expect(
+      // @ts-expect-error let's test error in case someone is not using Typescript
+      () => keyring.exportPrivateKey(address1, "Nah I'm careless")
+    ).toThrow(
+      "Confirmation constant string must be provided to acknowledge the danger of exporting a private key"
+    )
+  })
+  it("exports private keys for derived addresses", async () => {
+    const keyring = new HDKeyring({
+      mnemonic: validMnemonics[0],
+    })
+
+    const [address1, address2] = await keyring.addAddresses(2)
+
+    expect(keyring.exportPrivateKey(address1, exportConfirmation)).toBe(
+      "0x6cf5a2031e021b257730ba62c7dff36829d4e5296a08b6115f7be166c03e1a46"
+    )
+    expect(keyring.exportPrivateKey(address2, exportConfirmation)).toBe(
+      "0x7047d92e716734c2b132a5b7a81588879ade8953ba55bc06a169b8acc3958806"
+    )
+    expect(keyring.exportPrivateKey("0xABC", exportConfirmation)).toBe(null)
   })
   it("serializes its mnemonic", async () => {
     await Promise.all(
