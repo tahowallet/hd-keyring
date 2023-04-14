@@ -226,9 +226,20 @@ export default class HDKeyring implements Keyring<SerializedHDKeyring> {
     this.#addressToWallet[address] = wallet
   }
 
-  exportPrivateKey(address: string): string | null {
-    const wallet = this.#addressToWallet[address]
-    return wallet ? wallet.privateKey : null
+  exportPrivateKey(
+    address: string,
+    confirmation: "I solemnly swear that I am treating this private key material with great care."
+  ): string | null {
+    if (
+      confirmation ===
+      "I solemnly swear that I am treating this private key material with great care."
+    ) {
+      const wallet = this.#addressToWallet[address]
+      return wallet ? wallet.privateKey : null
+    }
+    throw new Error(
+      "Confirmation constant string must be provided to acknowledge the danger of exporting a private key"
+    )
   }
 
   getAddressesSync(): string[] {
